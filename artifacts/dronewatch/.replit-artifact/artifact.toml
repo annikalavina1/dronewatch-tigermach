@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "DroneWatch"
+description = "A synthetic-only counter-drone situational awareness demo for TIGERMACH, with an interactive airspace map, scenario controls, virtual AR eyewear display, deterministic alerts, and server-generated Muse Ember incident summaries."
+version = "1.0.0"
+id = "artifacts/dronewatch"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 19704
+
+[services.development]
+run = "pnpm --filter @workspace/dronewatch run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/dronewatch", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/dronewatch/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "19704"
+BASE_PATH = "/"

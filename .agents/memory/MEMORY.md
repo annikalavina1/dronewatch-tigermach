@@ -1,0 +1,1 @@
+- [DroneWatch simulation-only scope](dronewatch-simulation-scope.md) — Keep all observations synthetic; no live sensor feeds or drone control.

@@ -10,6 +10,8 @@ servers:
 tags:
   - name: health
     description: Health operations
+  - name: dronewatch
+    description: Synthetic-only DroneWatch demonstration operations
 paths:
   /healthz:
     get:
@@ -24,6 +26,49 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+  /dronewatch/summary:
+    post:
+      operationId: createDronewatchSummary
+      tags: [dronewatch]
+      summary: Summarize synthetic airspace observations
+      description: Uses Muse Ember to summarize synthetic observations and identify uncertainty. Does not connect to sensors or control drones.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/DronewatchSummaryInput"
+      responses:
+        "200":
+          description: AI-generated synthetic incident summary with provider token usage and estimated cost
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DronewatchSummary"
+        "400":
+          description: Invalid synthetic observation payload
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "429":
+          description: Demo summary request limit reached
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "502":
+          description: OpenRouter returned an unusable response
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+        "503":
+          description: OpenRouter is not configured or is temporarily unavailable
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
 components:
   schemas:
     HealthStatus:
@@ -33,4 +78,116 @@ components:
           type: string
       required:
         - status
+    DronewatchObservation:
+      type: object
+      properties:
+        id:
+          type: string
+          minLength: 1
+          maxLength: 40
+        time:
+          type: string
+          format: date-time
+        sector:
+          type: string
+          maxLength: 32
+        rangeMeters:
+          type: number
+          minimum: 0
+          maximum: 50000
+        bearingDegrees:
+          type: number
+          minimum: 0
+          maximum: 359
+        altitudeMeters:
+          type: number
+          minimum: 0
+          maximum: 20000
+        confidence:
+          type: number
+          minimum: 0
+          maximum: 1
+        classification:
+          type: string
+          maxLength: 80
+        source:
+          type: string
+          enum: [SIMULATED RADAR, SIMULATED RF, SIMULATED OPTICAL]
+        trackStatus:
+          type: string
+          enum: [new, tracking, intermittent]
+      required:
+        - id
+        - time
+        - sector
+        - rangeMeters
+        - bearingDegrees
+        - altitudeMeters
+        - confidence
+        - classification
+        - source
+        - trackStatus
+    DronewatchSummaryInput:
+      type: object
+      properties:
+        condition:
+          type: string
+          enum: [normal, new_observation, multiple_observations, sensor_loss]
+        observations:
+          type: array
+          minItems: 0
+          maxItems: 12
+          items:
+            $ref: "#/components/schemas/DronewatchObservation"
+        sensorCommunication:
+          type: string
+          enum: [online, degraded, lost]
+      required:
+        - condition
+        - observations
+        - sensorCommunication
+    DronewatchSummary:
+      type: object
+      properties:
+        summary:
+          type: string
+        uncertainty:
+          type: array
+          items:
+            type: string
+        model:
+          type: string
+        generatedAt:
+          type: string
+          format: date-time
+        usage:
+          type: object
+          properties:
+            promptTokens:
+              type: integer
+            completionTokens:
+              type: integer
+            totalTokens:
+              type: integer
+          required:
+            - promptTokens
+            - completionTokens
+            - totalTokens
+        estimatedCostUsd:
+          type: number
+          minimum: 0
+      required:
+        - summary
+        - uncertainty
+        - model
+        - generatedAt
+        - usage
+        - estimatedCostUsd
+    ApiError:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
 
