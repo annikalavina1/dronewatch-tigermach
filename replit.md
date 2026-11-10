@@ -1,45 +1,30 @@
-# [Project name]
+# DroneWatch
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+DroneWatch is a TIGERMACH situational-awareness demo built entirely around synthetic airspace observations. It includes four scenario controls, a local-grid map, deterministic notifications, an AI-generated incident summary, and a virtual AR eyewear preview.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- Start `artifacts/api-server: API Server` to serve `/api` and the server-side Muse Ember endpoint.
+- Start `artifacts/dronewatch: web` to serve the dashboard at `/`.
+- Add `OPENROUTER_API_KEY` through Replit Secrets. Never put it in browser code or a committed file.
+- Run `pnpm run typecheck` for a full workspace typecheck.
+- Run `pnpm --filter @workspace/api-spec run codegen` after changing the OpenAPI contract.
 
 ## Stack
 
-- pnpm workspaces, Node.js 24, TypeScript 5.9
+- pnpm workspace, Node.js 24, TypeScript 5.9
+- Frontend: React and Vite
 - API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- API contract and validation: OpenAPI, Orval, and Zod
+- AI summaries: OpenRouter `meta/muse-ember`, called by the API server
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/dronewatch/` — dashboard and synthetic scenario interactions
+- `artifacts/api-server/src/routes/dronewatch.ts` — validated server-side summary endpoint
+- `lib/api-spec/openapi.yaml` — API source of truth
+- `lib/api-client-react/` and `lib/api-zod/` — generated client and schema packages
 
-## Architecture decisions
+## Safety boundary
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
-
-## Product
-
-_Describe the high-level user-facing capabilities of this app once they exist._
-
-## User preferences
-
-_Populate as you build — explicit user instructions worth remembering across sessions._
-
-## Gotchas
-
-_Populate as you build — sharp edges, "always run X before Y" rules._
-
-## Pointers
-
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+All observations, feed states, alerts, and AR eyewear output are synthetic. Do not add real sensor connections or drone control. Deterministic UI rules create notifications; Muse Ember only summarizes synthetic observations and uncertainty.

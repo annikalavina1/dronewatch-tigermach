@@ -43,6 +43,15 @@ yarn-error.log
 testem.log
 /typings
 
+# Local credentials and private keys
+.env
+.env.*
+.envrc
+*.key
+*.pem
+*.p12
+*.pfx
+
 # System Files
 .DS_Store
 Thumbs.db
